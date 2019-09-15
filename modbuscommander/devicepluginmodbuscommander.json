@@ -104,7 +104,7 @@
                     ],
                     "stateTypes": [
                         {
-                            "id": "725b541a-9e0c-4634-81eb-e415c0b8f012",
+                            "id": "dffc59fe-b230-4345-81d6-0a55f9e16520",
                             "name": "connected",
                             "displayName": "connected",
                             "displayNameEvent": "connection status changed",
@@ -121,14 +121,15 @@
                     "interfaces": ["connectable"],
                     "paramTypes": [
                         {
-                            "id": "556f13e6-3fc3-462d-9ce1-6f8b9594d3fd",
+                            "id": "ecfae4c3-d8ab-4bea-8bf5-d281740b75f0
+",
                             "name": "parentId",
                             "displayName": "Parent Id",
                             "type": "QString",
                             "defaultValue": ""
                         },
                         {
-                            "id": "2bd0910c-07b3-46bf-b66c-7c513d9ef954",
+                            "id": "d85977a2-4f9c-40f8-9aff-76cea7bd17a3",
                             "name": "slaveAddress",
                             "displayName": "slave address",
                             "type": "int",
@@ -144,7 +145,7 @@
                     ],
                     "stateTypes": [
                         {
-                            "id": "725b541a-9e0c-4634-81eb-e415c0b8f012",
+                            "id": "9b3852ac-1518-4417-8a0a-452fcfec8963",
                             "name": "connected",
                             "displayName": "connected",
                             "displayNameEvent": "connection status changed",
@@ -171,21 +172,21 @@
                     "interfaces": ["connectable"],
                     "paramTypes": [
                         {
-                            "id": "556f13e6-3fc3-462d-9ce1-6f8b9594d3fd",
+                            "id": "3f2b3a57-6103-47df-8365-561b5d1d635a",
                             "name": "parentId",
                             "displayName": "Parent Id",
                             "type": "QString",
                             "defaultValue": ""
                         },
                         {
-                            "id": "2bd0910c-07b3-46bf-b66c-7c513d9ef954",
+                            "id": "044d951d-7b58-4099-a9a6-a6dff61746a8",
                             "name": "slaveAddress",
                             "displayName": "slave address",
                             "type": "int",
                             "defaultValue": 180
                         },
                         {
-                            "id": "9d40c4ce-d251-43bb-a55e-a8780567bbac",
+                            "id": "d37be0cc-6155-4894-b70f-cbc9adfbe48b",
                             "name": "registerAddress",
                             "displayName": "register address",
                             "type": "int",
@@ -194,7 +195,7 @@
                     ],
                     "stateTypes": [
                         {
-                            "id": "725b541a-9e0c-4634-81eb-e415c0b8f012",
+                            "id": "dbe7c801-0888-4e7f-a88b-ba342efb11b6",
                             "name": "connected",
                             "displayName": "connected",
                             "type": "bool",
@@ -219,21 +220,21 @@
                     "interfaces": ["connectable"],
                     "paramTypes": [
                         {
-                            "id": "556f13e6-3fc3-462d-9ce1-6f8b9594d3fd",
+                            "id": "7e842659-34de-4d4f-961b-c7887d472643",
                             "name": "parentId",
                             "displayName": "Parent Id",
                             "type": "QString",
                             "defaultValue": ""
                         },
                         {
-                            "id": "2bd0910c-07b3-46bf-b66c-7c513d9ef954",
+                            "id": "f66956ac-07cb-45ab-90e0-61c2a950b85a",
                             "name": "slaveAddress",
                             "displayName": "slave address",
                             "type": "int",
                             "defaultValue": 180
                         },
                         {
-                            "id": "9d40c4ce-d251-43bb-a55e-a8780567bbac",
+                            "id": "264e381c-d259-4e11-b4b3-332b518ebba3",
                             "name": "registerAddress",
                             "displayName": "register address",
                             "type": "int",
@@ -242,7 +243,7 @@
                     ],
                     "stateTypes": [
                         {
-                            "id": "725b541a-9e0c-4634-81eb-e415c0b8f012",
+                            "id": "0f3768cf-5fb2-4fbf-8614-8389f65f1e9d",
                             "name": "connected",
                             "displayName": "connected",
                             "type": "bool",
@@ -267,21 +268,21 @@
                     "interfaces": ["connectable"],
                     "paramTypes": [
                         {
-                            "id": "556f13e6-3fc3-462d-9ce1-6f8b9594d3fd",
+                            "id": "7cc245e8-0143-439c-abd5-434ecfbbabee",
                             "name": "parentId",
                             "displayName": "Parent Id",
                             "type": "QString",
                             "defaultValue": ""
                         },
                         {
-                            "id": "2bd0910c-07b3-46bf-b66c-7c513d9ef954",
+                            "id": "35879cf9-631c-4fe0-95c0-a4bb2e9039e6",
                             "name": "slaveAddress",
                             "displayName": "slave address",
                             "type": "int",
                             "defaultValue": 180
                         },
                         {
-                            "id": "9d40c4ce-d251-43bb-a55e-a8780567bbac",
+                            "id": "c771e09e-15fe-4ea9-9662-c44e2df556a8",
                             "name": "registerAddress",
                             "displayName": "register address",
                             "type": "int",
@@ -290,7 +291,7 @@
                     ],
                     "stateTypes": [
                         {
-                            "id": "725b541a-9e0c-4634-81eb-e415c0b8f012",
+                            "id": "1f55b72a-5d13-4ae1-b136-bfd84fd9761f",
                             "name": "connected",
                             "displayName": "connected",
                             "displayNameEvent": "connection status changed",
