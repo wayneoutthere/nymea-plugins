@@ -1,0 +1,41 @@
+{
+    "name": "evbox",
+    "displayName": "EVBox",
+    "id": "3362ac5c-5e2f-43c0-b3fc-70a98773e119",
+    "vendors": [
+        {
+            "name": "evbox",
+            "displayName": "EVBox",
+            "id": "435d8843-887a-4642-b2f5-cd27d18bdb95",
+            "thingClasses": [
+                {
+                    "id": "d73a14e3-10af-47bc-9bc7-a5ff6e52f72c",
+                    "name": "evbox",
+                    "displayName": "Elvi",
+                    "createMethods": ["discovery"],
+                    "setupMethod": "justadd",
+                    "interfaces": [ "connectable" ],
+                    "paramTypes": [
+                        {
+                            "id": "bce7c412-c19a-4e60-a11f-fe8308408abf",
+                            "name":"serialPort",
+                            "displayName": "Serial port",
+                            "type": "QString"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "5ef06038-9fa9-4d5d-8d9b-0375b8aa343a",
+                            "name": "connected",
+                            "displayName": "Connected",
+                            "displayNameEvent": "Connected changed",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "cached": false
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
