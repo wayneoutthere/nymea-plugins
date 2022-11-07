@@ -52,7 +52,7 @@ void IntegrationPluginEVBox::discoverThings(ThingDiscoveryInfo *info)
 
     foreach(QSerialPortInfo port, QSerialPortInfo::availablePorts()) {
 
-        qCDebug(dcEvbox()) << "Found serial port:" << port.portName();
+        qCDebug(dcEVBox()) << "Found serial port:" << port.portName();
         QString description = port.manufacturer() + " " + port.description();
         ThingDescriptor thingDescriptor(info->thingClassId(), port.portName(), description);
         ParamList parameters;
@@ -82,18 +82,19 @@ void IntegrationPluginEVBox::setupThing(ThingSetupInfo *info)
     serialPort->setParity(QSerialPort::NoParity);
 
     connect(serialPort, &QSerialPort::readyRead, thing, [=]() {
-        qCDebug(dcEvbox()) << "Data received on serial port:" << serialPort->readAll().toHex();
+        qCDebug(dcEVBox()) << "Data received on serial port:" << serialPort->readAll().toHex();
     });
 
     if (!serialPort->open(QSerialPort::ReadWrite)) {
-        qCWarning(dcEvbox()) << "Unable to open serial port";
+        qCWarning(dcEVBox()) << "Unable to open serial port";
         info->finish(Thing::ThingErrorHardwareFailure);
         return;
     }
 
+    m_serialPorts.insert(thing, serialPort);
+
     sendCommand(thing);
 
-    m_serialPorts.insert(thing, serialPort);
 
     info->finish(Thing::ThingErrorThingClassNotFound);
 }
@@ -138,7 +139,7 @@ void IntegrationPluginEVBox::sendCommand(Thing *thing)
     stream << xOr;
     stream << static_cast<quint8>(0x03); // End of frame
 
-    qCDebug(dcEvbox()) << "Writing" << data.toHex();
+    qCDebug(dcEVBox()) << "Writing" << data.toHex();
     QSerialPort *serialPort = m_serialPorts.value(thing);
     serialPort->write(data);
 }
