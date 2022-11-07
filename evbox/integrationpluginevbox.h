@@ -33,10 +33,7 @@
 
 #include "integrations/integrationplugin.h"
 
-#include <QUdpSocket>
-
-#include <QNetworkAccessManager>
-
+class QSerialPort;
 
 class IntegrationPluginEVBox: public IntegrationPlugin
 {
@@ -52,6 +49,12 @@ public:
     void discoverThings(ThingDiscoveryInfo *info) override;
     void setupThing(ThingSetupInfo *info) override;
     void executeAction(ThingActionInfo *info) override;
+
+private:
+    void sendCommand(Thing *thing);
+
+private:
+    QHash<Thing*, QSerialPort*> m_serialPorts;
 };
 
 #endif // INTEGRATIONPLUGINEVBOX_H

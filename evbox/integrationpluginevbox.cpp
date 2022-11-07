@@ -33,12 +33,9 @@
 #include "plugininfo.h"
 #include "plugintimer.h"
 
-#include <network/networkaccessmanager.h>
-#include <QNetworkReply>
-#include <QAuthenticator>
-#include <QUrlQuery>
-
 #include <QSerialPortInfo>
+#include <QSerialPort>
+#include <QDataStream>
 
 IntegrationPluginEVBox::IntegrationPluginEVBox()
 {
@@ -75,7 +72,29 @@ void IntegrationPluginEVBox::discoverThings(ThingDiscoveryInfo *info)
 
 void IntegrationPluginEVBox::setupThing(ThingSetupInfo *info)
 {
-//    Thing *thing = info->thing();
+    Thing *thing = info->thing();
+    QString interface = thing->paramValue(evboxThingSerialPortParamTypeId).toString();
+    QSerialPort *serialPort = new QSerialPort(interface, this);
+
+    serialPort->setBaudRate(QSerialPort::Baud38400);
+    serialPort->setDataBits(QSerialPort::Data8);
+    serialPort->setStopBits(QSerialPort::OneStop);
+    serialPort->setParity(QSerialPort::NoParity);
+
+    connect(serialPort, &QSerialPort::readyRead, thing, [=]() {
+        qCDebug(dcEvbox()) << "Data received on serial port:" << serialPort->readAll().toHex();
+    });
+
+    if (!serialPort->open(QSerialPort::ReadWrite)) {
+        qCWarning(dcEvbox()) << "Unable to open serial port";
+        info->finish(Thing::ThingErrorHardwareFailure);
+        return;
+    }
+
+    sendCommand(thing);
+
+    m_serialPorts.insert(thing, serialPort);
+
     info->finish(Thing::ThingErrorThingClassNotFound);
 }
 
@@ -83,5 +102,44 @@ void IntegrationPluginEVBox::executeAction(ThingActionInfo *info)
 {
 
     info->finish(Thing::ThingErrorThingClassNotFound);
+}
+
+void IntegrationPluginEVBox::sendCommand(Thing *thing)
+{
+    QByteArray commandData;
+    QDataStream commandDataStream(&commandData, QIODevice::WriteOnly);
+
+    commandDataStream << static_cast<quint8>(0x80); // Dst addr (chargepoint)
+    commandDataStream << static_cast<quint8>(0xA0); // Sender address
+    commandDataStream << static_cast<quint8>(0x69); // Command
+    commandDataStream << static_cast<quint16>(0x00e6); // Phase 1 max current
+    commandDataStream << static_cast<quint16>(0x00e6); // Phase 2 max current
+    commandDataStream << static_cast<quint16>(0x00E6); // Phase 3 max current
+    commandDataStream << static_cast<quint16>(0x003c); // Timeout (60 sec)
+    commandDataStream << static_cast<quint16>(0x00e6); // Phase 1 max current after timeout
+    commandDataStream << static_cast<quint16>(0x00e6); // Phase 2 max current after timeout
+    commandDataStream << static_cast<quint16>(0x00E6); // Phase 3 max current after timeout
+
+    QDataStream checksumStream(commandData);
+    quint8 sum = 0;
+    quint8 xOr = 0;
+    while (!checksumStream.atEnd()) {
+        quint8 byte;
+        checksumStream >> byte;
+        sum += byte;
+        xOr ^= byte;
+    }
+
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+    stream << static_cast<quint8>(0x02); // Start of frame
+    stream.writeRawData(commandData.data(), commandData.length());
+    stream << sum;
+    stream << xOr;
+    stream << static_cast<quint8>(0x03); // End of frame
+
+    qCDebug(dcEvbox()) << "Writing" << data.toHex();
+    QSerialPort *serialPort = m_serialPorts.value(thing);
+    serialPort->write(data);
 }
 
