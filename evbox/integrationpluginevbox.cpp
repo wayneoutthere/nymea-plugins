@@ -115,7 +115,7 @@ void IntegrationPluginEVBox::sendCommand(Thing *thing)
     commandDataStream << static_cast<quint8>(0x69); // Command
     commandDataStream << static_cast<quint16>(0x00e6); // Phase 1 max current
     commandDataStream << static_cast<quint16>(0x008c); // Phase 2 max current
-    commandDataStream << static_cast<quint16>(0x0152); // Phase 3 max current
+    commandDataStream << static_cast<quint16>(0x0154); // Phase 3 max current
     commandDataStream << static_cast<quint16>(0x003c); // Timeout (60 sec)
     commandDataStream << static_cast<quint16>(0x0028); // Phase 1 max current after timeout
     commandDataStream << static_cast<quint16>(0x0050); // Phase 2 max current after timeout
