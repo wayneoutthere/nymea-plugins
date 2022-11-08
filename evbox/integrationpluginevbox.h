@@ -53,6 +53,8 @@ public:
 private:
     void sendCommand(Thing *thing);
 
+    QByteArray createChecksum(const QByteArray &data) const;
+
 private:
     QHash<Thing*, QSerialPort*> m_serialPorts;
 };

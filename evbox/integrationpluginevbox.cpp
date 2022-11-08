@@ -108,20 +108,35 @@ void IntegrationPluginEVBox::executeAction(ThingActionInfo *info)
 void IntegrationPluginEVBox::sendCommand(Thing *thing)
 {
     QByteArray commandData;
-    QDataStream commandDataStream(&commandData, QIODevice::WriteOnly);
 
-    commandDataStream << static_cast<quint8>(0x80); // Dst addr (chargepoint)
-    commandDataStream << static_cast<quint8>(0xA0); // Sender address
-    commandDataStream << static_cast<quint8>(0x69); // Command
-    commandDataStream << static_cast<quint16>(0x00e6); // Phase 1 max current
-    commandDataStream << static_cast<quint16>(0x008c); // Phase 2 max current
-    commandDataStream << static_cast<quint16>(0x0154); // Phase 3 max current
-    commandDataStream << static_cast<quint16>(0x003c); // Timeout (60 sec)
-    commandDataStream << static_cast<quint16>(0x0028); // Phase 1 max current after timeout
-    commandDataStream << static_cast<quint16>(0x0050); // Phase 2 max current after timeout
-    commandDataStream << static_cast<quint16>(0x0046); // Phase 3 max current after timeout
+    commandData += "80"; // Dst addr
+    commandData += "A0"; // Sender address
+    commandData += "69"; // Command
+    commandData += "00e6"; // Phase 1 max current
+    commandData += "008c"; // Phase 2 max current
+    commandData += "0154"; // Phase 3 max current
+    commandData += "003c"; // Timeout (60 sec)
+    commandData += "0028"; // Phase 1 max current after timeout
+    commandData += "0050"; // Phase 2 max current after timeout
+    commandData += "0046"; // Phase 3 max current after timeout
 
-    QDataStream checksumStream(commandData);
+    commandData += createChecksum(commandData);
+
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+    stream << static_cast<quint8>(0x02); // Start of frame
+    stream.writeRawData(commandData.toHex().data(), commandData.toHex().length());
+    stream << static_cast<quint8>(0x03); // End of frame
+
+    qCDebug(dcEVBox()) << "data:" << data;
+    qCDebug(dcEVBox()) << "Writing" << data.toHex();
+    QSerialPort *serialPort = m_serialPorts.value(thing);
+    serialPort->write(data);
+}
+
+QByteArray IntegrationPluginEVBox::createChecksum(const QByteArray &data) const
+{
+    QDataStream checksumStream(data);
     quint8 sum = 0;
     quint8 xOr = 0;
     while (!checksumStream.atEnd()) {
@@ -130,18 +145,6 @@ void IntegrationPluginEVBox::sendCommand(Thing *thing)
         sum += byte;
         xOr ^= byte;
     }
-
-    QByteArray data;
-    QDataStream stream(&data, QIODevice::WriteOnly);
-    stream << static_cast<quint8>(0x02); // Start of frame
-    commandData.append(QByteArray::number(sum).toHex());
-    commandData.append(QByteArray::number(xOr).toHex());
-    stream.writeRawData(commandData.toHex().data(), commandData.toHex().length());
-    stream << static_cast<quint8>(0x03); // End of frame
-
-    qCDebug(dcEVBox()) << "data:" << data;
-    qCDebug(dcEVBox()) << "Writing" << data.toHex();
-    QSerialPort *serialPort = m_serialPorts.value(thing);
-    serialPort->write(data);
+    return QString("%1%2").arg(sum,2,16, QChar('0')).arg(xOr,2,16, QChar('0')).toLocal8Bit();
 }
 
