@@ -134,11 +134,12 @@ void IntegrationPluginEVBox::sendCommand(Thing *thing)
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
     stream << static_cast<quint8>(0x02); // Start of frame
-    stream.writeRawData(commandData.data(), commandData.length());
-    stream << sum;
-    stream << xOr;
+    commandData.append(QByteArray::number(sum).toHex());
+    commandData.append(QByteArray::number(xOr).toHex());
+    stream.writeRawData(commandData.toHex().data(), commandData.toHex().length());
     stream << static_cast<quint8>(0x03); // End of frame
 
+    qCDebug(dcEVBox()) << "data:" << data;
     qCDebug(dcEVBox()) << "Writing" << data.toHex();
     QSerialPort *serialPort = m_serialPorts.value(thing);
     serialPort->write(data);
