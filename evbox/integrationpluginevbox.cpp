@@ -120,7 +120,8 @@ void IntegrationPluginEVBox::sendCommand(Thing *thing)
     commandData += "0050"; // Phase 2 max current after timeout
     commandData += "0046"; // Phase 3 max current after timeout
 
-    commandData += createChecksum(commandData);
+    commandData += "F703";
+//    commandData += createChecksum(commandData);
 
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
