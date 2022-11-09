@@ -125,7 +125,7 @@ void IntegrationPluginEVBox::sendCommand(Thing *thing)
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
     stream << static_cast<quint8>(0x02); // Start of frame
-    stream.writeRawData(commandData.toHex().data(), commandData.toHex().length());
+    stream.writeRawData(commandData.data(), commandData.length());
     stream << static_cast<quint8>(0x03); // End of frame
 
     qCDebug(dcEVBox()) << "data:" << data;
