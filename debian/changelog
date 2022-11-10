@@ -1,3 +1,14 @@
+nymea-plugins (1.6.0) jammy; urgency=medium
+
+  [ Michael Zanetti ]
+  * WIP: New Plugin: nymea owlets
+  * AQI: Reorder interfaces based on their relevancy
+
+  [ Simon Stürz ]
+  * shelly: debug experimental
+
+ -- jenkins <developer@nymea.io>  Thu, 10 Nov 2022 01:31:38 +0100
+
 nymea-plugins (1.5.1) jammy; urgency=medium
 
   [ Michael Zanetti ]
