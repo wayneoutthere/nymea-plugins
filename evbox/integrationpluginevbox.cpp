@@ -216,5 +216,11 @@ void IntegrationPluginEVBox::processInputBuffer(Thing *thing)
 void IntegrationPluginEVBox::processDataPacket(Thing *thing, const QByteArray &packet)
 {
     qCDebug(dcEVBox()) << thing->name() << packet;
+
+    QDataStream stream(packet);
+
+    char buf[2];
+    stream.readRawData(buf, 2);
+    qCDebug(dcEVBox()) << "From:" << QByteArray(buf, 2);
 }
 
