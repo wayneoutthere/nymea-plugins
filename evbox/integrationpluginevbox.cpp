@@ -82,7 +82,8 @@ void IntegrationPluginEVBox::setupThing(ThingSetupInfo *info)
     serialPort->setParity(QSerialPort::NoParity);
 
     connect(serialPort, &QSerialPort::readyRead, thing, [=]() {
-        qCDebug(dcEVBox()) << "Data received on serial port:" << serialPort->readAll().toHex();
+        m_inputBuffers[thing].append(serialPort->readAll());
+        processInputBuffer(thing);
     });
 
     if (!serialPort->open(QSerialPort::ReadWrite)) {
@@ -93,12 +94,12 @@ void IntegrationPluginEVBox::setupThing(ThingSetupInfo *info)
 
     m_serialPorts.insert(thing, serialPort);
 
-    sendCommand(thing, true);
+    sendCommand(thing);
 
-    QTimer::singleShot(5000, [=](){
-        sendCommand(thing, false);
+    m_pendingSetups.insert(thing, info);
+    QTimer::singleShot(2000, info, [info](){
+        info->finish(Thing::ThingErrorHardwareNotAvailable, QT_TR_NOOP("The EVBox is not responding."));
     });
-
 
     info->finish(Thing::ThingErrorNoError);
 }
@@ -109,7 +110,7 @@ void IntegrationPluginEVBox::executeAction(ThingActionInfo *info)
     info->finish(Thing::ThingErrorThingClassNotFound);
 }
 
-void IntegrationPluginEVBox::sendCommand(Thing *thing, bool useCrc)
+void IntegrationPluginEVBox::sendCommand(Thing *thing)
 {
     QByteArray commandData;
 
@@ -124,11 +125,7 @@ void IntegrationPluginEVBox::sendCommand(Thing *thing, bool useCrc)
     commandData += "0050"; // Phase 2 max current after timeout
     commandData += "0046"; // Phase 3 max current after timeout
 
-    if (useCrc) {
-        commandData += createChecksum(commandData);
-    } else {
-        commandData += "F703";
-    }
+    commandData += createChecksum(commandData);
 
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
@@ -154,5 +151,44 @@ QByteArray IntegrationPluginEVBox::createChecksum(const QByteArray &data) const
         xOr ^= byte;
     }
     return QString("%1%2").arg(sum,2,16, QChar('0')).arg(xOr,2,16, QChar('0')).toLocal8Bit();
+}
+
+void IntegrationPluginEVBox::processInputBuffer(Thing *thing)
+{
+    QByteArray packet;
+    QDataStream inputStream(m_inputBuffers.value(thing));
+    QDataStream outputStream(&packet, QIODevice::WriteOnly);
+    bool startFound = false, endFound = false;
+
+    while (!inputStream.atEnd()) {
+        quint8 byte;
+        inputStream >> byte;
+        if (!startFound) {
+            if (byte == 0x02) {
+                startFound = true;
+                continue;
+            } else {
+                qCWarning(dcEVBox()) << "Discarding byte not matching start of frame 0x" + QString::number(byte, 16);
+                continue;
+            }
+        }
+
+        if (byte == 0x03) {
+            endFound = true;
+            break;
+        }
+
+        outputStream << byte;
+    }
+
+    if (startFound && endFound) {
+        m_inputBuffers[thing].remove(0, packet.length() + 2);
+    }
+
+    qCDebug(dcEVBox()) << "Packet received:" << packet.toHex();
+
+    if (m_pendingSetups.contains(thing)) {
+        m_pendingSetups.take(thing)->finish(Thing::ThingErrorNoError);
+    }
 }
 

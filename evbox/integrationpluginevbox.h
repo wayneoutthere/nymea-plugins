@@ -51,12 +51,17 @@ public:
     void executeAction(ThingActionInfo *info) override;
 
 private:
-    void sendCommand(Thing *thing, bool useCrc);
+    void sendCommand(Thing *thing);
 
     QByteArray createChecksum(const QByteArray &data) const;
 
+    void processInputBuffer(Thing *thing);
+
 private:
     QHash<Thing*, QSerialPort*> m_serialPorts;
+    QHash<Thing*, ThingSetupInfo*> m_pendingSetups;
+
+    QHash<Thing*, QByteArray> m_inputBuffers;
 };
 
 #endif // INTEGRATIONPLUGINEVBOX_H
