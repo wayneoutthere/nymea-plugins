@@ -95,8 +95,12 @@ void IntegrationPluginEVBox::setupThing(ThingSetupInfo *info)
     m_serialPorts.insert(thing, serialPort);
 
     m_pendingSetups.insert(thing, info);
+    connect(info, &ThingSetupInfo::finished, this, [=](){
+        m_pendingSetups.remove(thing);
+    });
     QTimer::singleShot(2000, info, [=](){
-        m_pendingSetups.take(thing)->finish(Thing::ThingErrorHardwareNotAvailable, QT_TR_NOOP("The EVBox is not responding."));
+        qCDebug(dcEVBox()) << "Timeout during setup";
+        info->finish(Thing::ThingErrorHardwareNotAvailable, QT_TR_NOOP("The EVBox is not responding."));
     });
 
 
@@ -189,6 +193,7 @@ void IntegrationPluginEVBox::processInputBuffer(Thing *thing)
     qCDebug(dcEVBox()) << "Packet received:" << packet.toHex();
 
     if (m_pendingSetups.contains(thing)) {
+        qCDebug(dcEVBox()) << "Finishing setup";
         m_pendingSetups.take(thing)->finish(Thing::ThingErrorNoError);
     }
 }
