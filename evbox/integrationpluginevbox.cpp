@@ -74,7 +74,7 @@ void IntegrationPluginEVBox::setupThing(ThingSetupInfo *info)
 {
     Thing *thing = info->thing();
     QString interface = thing->paramValue(evboxThingSerialPortParamTypeId).toString();
-    QSerialPort *serialPort = new QSerialPort(interface, this);
+    QSerialPort *serialPort = new QSerialPort(interface, info->thing());
 
     serialPort->setBaudRate(QSerialPort::Baud38400);
     serialPort->setDataBits(QSerialPort::Data8);
@@ -102,10 +102,16 @@ void IntegrationPluginEVBox::setupThing(ThingSetupInfo *info)
     });
     QTimer::singleShot(2000, info, [=](){
         qCDebug(dcEVBox()) << "Timeout during setup";
+        delete m_serialPorts.take(info->thing());
         info->finish(Thing::ThingErrorHardwareNotAvailable, QT_TR_NOOP("The EVBox is not responding."));
     });
 
     sendCommand(thing, Command69, 0);
+}
+
+void IntegrationPluginEVBox::thingRemoved(Thing *thing)
+{
+    delete m_serialPorts.take(thing);
 }
 
 void IntegrationPluginEVBox::executeAction(ThingActionInfo *info)
@@ -137,7 +143,7 @@ void IntegrationPluginEVBox::sendCommand(Thing *thing, Command command, quint16 
     commandData += QString("%1").arg(maxChargingCurrent * 10, 4, 10, QChar('0'));
     commandData += QString("%1").arg(maxChargingCurrent * 10, 4, 10, QChar('0'));
     commandData += QString("%1").arg(maxChargingCurrent * 10, 4, 10, QChar('0'));
-    commandData += "003c"; // Timeout (60 sec)
+    commandData += "003C"; // Timeout (60 sec)
     commandData += QString("%1").arg(0, 4, 10, QChar('0'));
     commandData += QString("%1").arg(0, 4, 10, QChar('0'));
     commandData += QString("%1").arg(0, 4, 10, QChar('0'));
