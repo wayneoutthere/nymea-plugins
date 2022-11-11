@@ -82,7 +82,9 @@ void IntegrationPluginEVBox::setupThing(ThingSetupInfo *info)
     serialPort->setParity(QSerialPort::NoParity);
 
     connect(serialPort, &QSerialPort::readyRead, thing, [=]() {
-        m_inputBuffers[thing].append(serialPort->readAll());
+        QByteArray data = serialPort->readAll();
+        qCDebug(dcEVBox()) << "Data received from serial port:" << data;
+        m_inputBuffers[thing].append(data);
         processInputBuffer(thing);
     });
 
