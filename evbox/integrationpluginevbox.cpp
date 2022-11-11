@@ -134,9 +134,9 @@ void IntegrationPluginEVBox::sendCommand(Thing *thing, Command command, quint16 
     commandData += "80"; // Dst addr
     commandData += "A0"; // Sender address
     commandData += QString::number(command);
-    commandData += QString("%1").arg(maxChargingCurrent, 4, 10, QChar('0'));
-    commandData += QString("%1").arg(maxChargingCurrent, 4, 10, QChar('0'));
-    commandData += QString("%1").arg(maxChargingCurrent, 4, 10, QChar('0'));
+    commandData += QString("%1").arg(maxChargingCurrent * 10, 4, 10, QChar('0'));
+    commandData += QString("%1").arg(maxChargingCurrent * 10, 4, 10, QChar('0'));
+    commandData += QString("%1").arg(maxChargingCurrent * 10, 4, 10, QChar('0'));
     commandData += "003c"; // Timeout (60 sec)
     commandData += QString("%1").arg(0, 4, 10, QChar('0'));
     commandData += QString("%1").arg(0, 4, 10, QChar('0'));
@@ -247,8 +247,8 @@ void IntegrationPluginEVBox::processDataPacket(Thing *thing, const QByteArray &p
         quint16 minChargingCurrent, chargingCurrentL1, chargingCurrentL2, chargingCurrentL3, cosinePhiL1, cosinePhiL2, cosinePhiL3, totalEnergyConsumed;
         stream >> minChargingCurrent >> chargingCurrentL1 >> chargingCurrentL2 >> chargingCurrentL3 >> cosinePhiL1 >> cosinePhiL2 >> cosinePhiL3 >> totalEnergyConsumed;
 
-        thing->setStateMinMaxValues(evboxMaxChargingCurrentStateTypeId, minChargingCurrent, maxChargingCurrent);
-        thing->setStateValue(evboxMaxChargingCurrentStateTypeId, chargingCurrentL1);
+        thing->setStateMinMaxValues(evboxMaxChargingCurrentStateTypeId, minChargingCurrent / 10, maxChargingCurrent / 10);
+        thing->setStateValue(evboxMaxChargingCurrentStateTypeId, chargingCurrentL1 / 10);
         // No idea why there's L2, L3...
 
 

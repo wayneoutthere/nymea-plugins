@@ -44,8 +44,8 @@ class IntegrationPluginEVBox: public IntegrationPlugin
 
 public:
     enum Command {
-        Command68 = 68,
-        Command69 = 69
+        Command68 = 0x68,
+        Command69 = 0x69
     };
     Q_ENUM(Command)
 
