@@ -219,14 +219,17 @@ void IntegrationPluginEVBox::processDataPacket(Thing *thing, const QByteArray &p
 
     QDataStream stream(packet);
 
-    char buf[2];
+    char buf[4];
     stream.readRawData(buf, 2); // from
 
     stream.readRawData(buf, 2); // to
     stream.readRawData(buf, 2); // commandId
     Command command = static_cast<Command>(QByteArray(buf, 2).toInt());
 
-    qCDebug(dcEVBox()) << "Command received:" << command;
+    stream.readRawData(buf, 4);
+    quint16 minInterval = QByteArray(buf, 4).toUInt();
+
+    qCDebug(dcEVBox()) << "Command received:" << command << "min time;" << minInterval;
 
 
 }
