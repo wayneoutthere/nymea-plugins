@@ -190,6 +190,9 @@ void IntegrationPluginEVBox::processInputBuffer(Thing *thing)
 
     if (startFound && endFound) {
         m_inputBuffers[thing].remove(0, packet.length() + 2);
+    } else {
+        qCDebug(dcEVBox()) << "Data seems incomplete... Waiting for more...";
+        return;
     }
 
     qCDebug(dcEVBox()) << "Packet received:" << packet.toHex();
