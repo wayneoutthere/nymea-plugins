@@ -105,10 +105,7 @@ void IntegrationPluginEVBox::setupThing(ThingSetupInfo *info)
         info->finish(Thing::ThingErrorHardwareNotAvailable, QT_TR_NOOP("The EVBox is not responding."));
     });
 
-
     sendCommand(thing);
-
-    info->finish(Thing::ThingErrorNoError);
 }
 
 void IntegrationPluginEVBox::executeAction(ThingActionInfo *info)
@@ -195,7 +192,7 @@ void IntegrationPluginEVBox::processInputBuffer(Thing *thing)
         return;
     }
 
-    qCDebug(dcEVBox()) << "Packet received:" << packet.toHex();
+    qCDebug(dcEVBox()) << "Packet received:" << packet;
 
     if (m_pendingSetups.contains(thing)) {
         qCDebug(dcEVBox()) << "Finishing setup";
