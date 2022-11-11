@@ -199,9 +199,9 @@ void IntegrationPluginEVBox::processInputBuffer(Thing *thing)
 
     qCDebug(dcEVBox()) << "Packet received:" << packet;
 
-    QByteArray checksum = createChecksum(packet.left(packet.length() - 2));
-    if (checksum != packet.right(2)) {
-        qCWarning(dcEVBox()) << "Checksum mismatch for incoming packet:" << packet << "Given checksum:" << packet.right(2) << "Expected:" << checksum;
+    QByteArray checksum = createChecksum(packet.left(packet.length() - 4));
+    if (checksum != packet.right(4)) {
+        qCWarning(dcEVBox()) << "Checksum mismatch for incoming packet:" << packet << "Given checksum:" << packet.right(4) << "Expected:" << checksum;
         return;
     }
 
