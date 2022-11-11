@@ -94,12 +94,13 @@ void IntegrationPluginEVBox::setupThing(ThingSetupInfo *info)
 
     m_serialPorts.insert(thing, serialPort);
 
-    sendCommand(thing);
-
     m_pendingSetups.insert(thing, info);
-    QTimer::singleShot(2000, info, [info](){
-        info->finish(Thing::ThingErrorHardwareNotAvailable, QT_TR_NOOP("The EVBox is not responding."));
+    QTimer::singleShot(2000, info, [=](){
+        m_pendingSetups.take(thing)->finish(Thing::ThingErrorHardwareNotAvailable, QT_TR_NOOP("The EVBox is not responding."));
     });
+
+
+    sendCommand(thing);
 
     info->finish(Thing::ThingErrorNoError);
 }
