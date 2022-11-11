@@ -105,29 +105,42 @@ void IntegrationPluginEVBox::setupThing(ThingSetupInfo *info)
         info->finish(Thing::ThingErrorHardwareNotAvailable, QT_TR_NOOP("The EVBox is not responding."));
     });
 
-    sendCommand(thing);
+    sendCommand(thing, Command69, 0);
 }
 
 void IntegrationPluginEVBox::executeAction(ThingActionInfo *info)
 {
+    Thing *thing = info->thing();
 
-    info->finish(Thing::ThingErrorThingClassNotFound);
+    if (info->action().actionTypeId() == evboxPowerActionTypeId) {
+        bool power = info->action().paramValue(evboxPowerActionPowerParamTypeId).toBool();
+        sendCommand(info->thing(), Command69, power ? info->thing()->stateValue(evboxMaxChargingCurrentStateTypeId).toUInt() : 0);
+    } else if (info->action().actionTypeId() == evboxMaxChargingCurrentActionTypeId) {
+        int maxChargingCurrent = info->action().paramValue(evboxMaxChargingCurrentActionMaxChargingCurrentParamTypeId).toInt();
+        sendCommand(info->thing(), Command68, maxChargingCurrent);
+    }
+
+    m_pendingActions[thing].append(info);
+    connect(info, &ThingActionInfo::finished, this, [=](){
+        m_pendingActions[thing].removeAll(info);
+    });
+
 }
 
-void IntegrationPluginEVBox::sendCommand(Thing *thing)
+void IntegrationPluginEVBox::sendCommand(Thing *thing, Command command, quint16 maxChargingCurrent)
 {
     QByteArray commandData;
 
     commandData += "80"; // Dst addr
     commandData += "A0"; // Sender address
-    commandData += "69"; // Command
-    commandData += "00e6"; // Phase 1 max current
-    commandData += "008c"; // Phase 2 max current
-    commandData += "0154"; // Phase 3 max current
+    commandData += QString::number(command);
+    commandData += QString("%1").arg(maxChargingCurrent, 4, 10, QChar('0'));
+    commandData += QString("%1").arg(maxChargingCurrent, 4, 10, QChar('0'));
+    commandData += QString("%1").arg(maxChargingCurrent, 4, 10, QChar('0'));
     commandData += "003c"; // Timeout (60 sec)
-    commandData += "0028"; // Phase 1 max current after timeout
-    commandData += "0050"; // Phase 2 max current after timeout
-    commandData += "0046"; // Phase 3 max current after timeout
+    commandData += QString("%1").arg(6, 4, 10, QChar('0'));
+    commandData += QString("%1").arg(6, 4, 10, QChar('0'));
+    commandData += QString("%1").arg(6, 4, 10, QChar('0'));
 
     commandData += createChecksum(commandData);
 
@@ -209,6 +222,9 @@ void IntegrationPluginEVBox::processInputBuffer(Thing *thing)
         qCDebug(dcEVBox()) << "Finishing setup";
         m_pendingSetups.take(thing)->finish(Thing::ThingErrorNoError);
     }
+    if (!m_pendingActions.value(thing).isEmpty()) {
+        m_pendingActions.value(thing).first()->finish(Thing::ThingErrorNoError);
+    }
 
     processDataPacket(thing, packet);
 }
@@ -229,7 +245,12 @@ void IntegrationPluginEVBox::processDataPacket(Thing *thing, const QByteArray &p
     stream.readRawData(buf, 4);
     quint16 minInterval = QByteArray(buf, 4).toUInt();
 
-    qCDebug(dcEVBox()) << "Command received:" << command << "min time;" << minInterval;
+    stream.readRawData(buf, 4);
+    quint16 maxChargingCurrent = QByteArray(buf, 4).toUInt();
+
+    qCDebug(dcEVBox()) << "Command received:" << command << "min time:" << minInterval << "max current:" << maxChargingCurrent;
+
+
 
 
 }

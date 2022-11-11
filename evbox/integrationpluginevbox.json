@@ -14,7 +14,7 @@
                     "displayName": "Elvi",
                     "createMethods": ["discovery"],
                     "setupMethod": "justadd",
-                    "interfaces": [ "connectable" ],
+                    "interfaces": [ "evcharger", "connectable" ],
                     "paramTypes": [
                         {
                             "id": "bce7c412-c19a-4e60-a11f-fe8308408abf",
@@ -32,6 +32,27 @@
                             "type": "bool",
                             "defaultValue": false,
                             "cached": false
+                        },
+                        {
+                            "id": "e3ed9334-68bf-47eb-bd9a-d9a800529bce",
+                            "name": "power",
+                            "displayName": "Charging enabled",
+                            "displayNameAction": "Enable/disable charging",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "writable": true
+                        },
+                        {
+                            "id": "cc9ae86d-fc86-473f-ae90-d9eb20d7a011",
+                            "name": "maxChargingCurrent",
+                            "displayName": "Maximum charging current",
+                            "displayNameAction": "Set maximum charging current",
+                            "type": "uint",
+                            "writable": true,
+                            "unit": "Ampere",
+                            "minValue": "6",
+                            "maxValue": "22",
+                            "defaultValue": 6
                         }
                     ]
                 }

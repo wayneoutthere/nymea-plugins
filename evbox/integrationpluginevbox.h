@@ -57,7 +57,7 @@ public:
     void executeAction(ThingActionInfo *info) override;
 
 private:
-    void sendCommand(Thing *thing);
+    void sendCommand(Thing *thing, Command command, quint16 maxChargingCurrent);
 
     QByteArray createChecksum(const QByteArray &data) const;
 
@@ -67,6 +67,7 @@ private:
 private:
     QHash<Thing*, QSerialPort*> m_serialPorts;
     QHash<Thing*, ThingSetupInfo*> m_pendingSetups;
+    QHash<Thing*, QList<ThingActionInfo*>> m_pendingActions;
 
     QHash<Thing*, QByteArray> m_inputBuffers;
 };
