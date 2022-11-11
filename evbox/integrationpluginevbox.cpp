@@ -93,7 +93,11 @@ void IntegrationPluginEVBox::setupThing(ThingSetupInfo *info)
 
     m_serialPorts.insert(thing, serialPort);
 
-    sendCommand(thing);
+    sendCommand(thing, true);
+
+    QTimer::singleShot(5000, [=](){
+        sendCommand(thing, false);
+    });
 
 
     info->finish(Thing::ThingErrorNoError);
@@ -105,7 +109,7 @@ void IntegrationPluginEVBox::executeAction(ThingActionInfo *info)
     info->finish(Thing::ThingErrorThingClassNotFound);
 }
 
-void IntegrationPluginEVBox::sendCommand(Thing *thing)
+void IntegrationPluginEVBox::sendCommand(Thing *thing, bool useCrc)
 {
     QByteArray commandData;
 
@@ -120,8 +124,11 @@ void IntegrationPluginEVBox::sendCommand(Thing *thing)
     commandData += "0050"; // Phase 2 max current after timeout
     commandData += "0046"; // Phase 3 max current after timeout
 
-    commandData += "F703";
-//    commandData += createChecksum(commandData);
+    if (useCrc) {
+        commandData += createChecksum(commandData);
+    } else {
+        commandData += "F703";
+    }
 
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);

@@ -51,7 +51,7 @@ public:
     void executeAction(ThingActionInfo *info) override;
 
 private:
-    void sendCommand(Thing *thing);
+    void sendCommand(Thing *thing, bool useCrc);
 
     QByteArray createChecksum(const QByteArray &data) const;
 
