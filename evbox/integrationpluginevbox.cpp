@@ -138,9 +138,9 @@ void IntegrationPluginEVBox::sendCommand(Thing *thing, Command command, quint16 
     commandData += QString("%1").arg(maxChargingCurrent, 4, 10, QChar('0'));
     commandData += QString("%1").arg(maxChargingCurrent, 4, 10, QChar('0'));
     commandData += "003c"; // Timeout (60 sec)
-    commandData += QString("%1").arg(6, 4, 10, QChar('0'));
-    commandData += QString("%1").arg(6, 4, 10, QChar('0'));
-    commandData += QString("%1").arg(6, 4, 10, QChar('0'));
+    commandData += QString("%1").arg(0, 4, 10, QChar('0'));
+    commandData += QString("%1").arg(0, 4, 10, QChar('0'));
+    commandData += QString("%1").arg(0, 4, 10, QChar('0'));
 
     commandData += createChecksum(commandData);
 
@@ -233,22 +233,45 @@ void IntegrationPluginEVBox::processDataPacket(Thing *thing, const QByteArray &p
 {
     qCDebug(dcEVBox()) << thing->name() << packet;
 
-    QDataStream stream(packet);
+    QDataStream stream(QByteArray::fromHex(packet));
 
-    char buf[4];
-    stream.readRawData(buf, 2); // from
+    quint8 from, to, commandId, wallboxCount;
+    quint16 minPollInterval, maxChargingCurrent;
+    stream >> from >> to >> commandId >> minPollInterval >> maxChargingCurrent >> wallboxCount;
 
-    stream.readRawData(buf, 2); // to
-    stream.readRawData(buf, 2); // commandId
-    Command command = static_cast<Command>(QByteArray(buf, 2).toInt());
 
-    stream.readRawData(buf, 4);
-    quint16 minInterval = QByteArray(buf, 4).toUInt();
 
-    stream.readRawData(buf, 4);
-    quint16 maxChargingCurrent = QByteArray(buf, 4).toUInt();
+    // Command 69 would give a list of wallboxes (they can be chained apparently) but we only support a single one for now
+//    for (int i = 0; i < wallboxCount; i++) {
+    if (wallboxCount > 0) {
+        quint16 minChargingCurrent, chargingCurrentL1, chargingCurrentL2, chargingCurrentL3, cosinePhiL1, cosinePhiL2, cosinePhiL3, totalEnergyConsumed;
+        stream >> minChargingCurrent >> chargingCurrentL1 >> chargingCurrentL2 >> chargingCurrentL3 >> cosinePhiL1 >> cosinePhiL2 >> cosinePhiL3 >> totalEnergyConsumed;
 
-    qCDebug(dcEVBox()) << "Command received:" << command << "min time:" << minInterval << "max current:" << maxChargingCurrent;
+        thing->setStateMinMaxValues(evboxMaxChargingCurrentStateTypeId, minChargingCurrent, maxChargingCurrent);
+        thing->setStateValue(evboxMaxChargingCurrentStateTypeId, chargingCurrentL1);
+        // No idea why there's L2, L3...
+
+
+        qCDebug(dcEVBox()) << "Command received:" << commandId << "min time:" << minPollInterval << "min current:" << minChargingCurrent << "max current:" << maxChargingCurrent << "used current" << chargingCurrentL1 << chargingCurrentL2 << chargingCurrentL3 << "total" << totalEnergyConsumed;
+
+
+    }
+//    char buf[4];
+//    stream.readRawData(buf, 2); // from
+//    stream.readRawData(buf, 2); // to
+//    stream.readRawData(buf, 2); // commandId
+//    Command command = static_cast<Command>(QByteArray(buf, 2).toInt());
+
+//    stream.readRawData(buf, 4);
+//    quint16 minInterval = QByteArray(buf, 4).toUInt();
+
+//    stream.readRawData(buf, 4);
+//    quint16 maxChargingCurrent = QByteArray(buf, 4).toUInt();
+
+
+
+
+
 
 
 
