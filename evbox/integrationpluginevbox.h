@@ -43,6 +43,12 @@ class IntegrationPluginEVBox: public IntegrationPlugin
     Q_INTERFACES(IntegrationPlugin)
 
 public:
+    enum Command {
+        Command68 = 68,
+        Command69 = 69
+    };
+    Q_ENUM(Command)
+
     explicit IntegrationPluginEVBox();
     ~IntegrationPluginEVBox();
 

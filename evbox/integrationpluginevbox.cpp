@@ -220,7 +220,14 @@ void IntegrationPluginEVBox::processDataPacket(Thing *thing, const QByteArray &p
     QDataStream stream(packet);
 
     char buf[2];
-    stream.readRawData(buf, 2);
-    qCDebug(dcEVBox()) << "From:" << QByteArray(buf, 2);
+    stream.readRawData(buf, 2); // from
+
+    stream.readRawData(buf, 2); // to
+    stream.readRawData(buf, 2); // commandId
+    Command command = static_cast<Command>(QByteArray(buf, 2).toInt());
+
+    qCDebug(dcEVBox()) << "Command received:" << command;
+
+
 }
 
