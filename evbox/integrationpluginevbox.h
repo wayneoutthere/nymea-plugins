@@ -56,6 +56,7 @@ private:
     QByteArray createChecksum(const QByteArray &data) const;
 
     void processInputBuffer(Thing *thing);
+    void processDataPacket(Thing *thing, const QByteArray &packet);
 
 private:
     QHash<Thing*, QSerialPort*> m_serialPorts;

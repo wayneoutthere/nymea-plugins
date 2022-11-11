@@ -192,11 +192,29 @@ void IntegrationPluginEVBox::processInputBuffer(Thing *thing)
         return;
     }
 
+    if (packet.length() < 2) { // In practice it'll be longer, but let's make sure we won't crash checking the checksum
+        qCDebug(dcEVBox()) << "Packet is too short";
+        return;
+    }
+
     qCDebug(dcEVBox()) << "Packet received:" << packet;
+
+    QByteArray checksum = createChecksum(packet.left(packet.length() - 2));
+    if (checksum != packet.right(2)) {
+        qCWarning(dcEVBox()) << "Checksum mismatch for incoming packet:" << packet << "Given checksum:" << packet.right(2) << "Expected:" << checksum;
+        return;
+    }
 
     if (m_pendingSetups.contains(thing)) {
         qCDebug(dcEVBox()) << "Finishing setup";
         m_pendingSetups.take(thing)->finish(Thing::ThingErrorNoError);
     }
+
+    processDataPacket(thing, packet);
+}
+
+void IntegrationPluginEVBox::processDataPacket(Thing *thing, const QByteArray &packet)
+{
+    qCDebug(dcEVBox()) << thing->name() << packet;
 }
 
